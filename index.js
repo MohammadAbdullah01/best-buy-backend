@@ -13,10 +13,6 @@ app.use(express.json())
 app.get('/', (req, res) => {
     res.send('Hello World!')
 })
-// app.get('/products', async (req, res) => {
-//     res.send(products)
-// })
-
 
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.5eij1.mongodb.net/?retryWrites=true&w=majority`;
@@ -26,7 +22,9 @@ async function run() {
     try {
         await client.connect();
         const productsCollection = client.db("bestBuy").collection("products");
+        const ordersCollection = client.db("bestBuy").collection("orders");
 
+        //get all products (mobile)
         app.get('/products', async (req, res) => {
             const products = await productsCollection.find().toArray()
             console.log(products);
@@ -42,6 +40,26 @@ async function run() {
                 res.send(products)
             }
         })
+
+        //post order
+        app.post('/orders', async (req, res) => {
+            const order = req.body;
+            const orderComplete = await ordersCollection.insertOne(order)
+            res.send(orderComplete)
+        })
+        //get all orders
+        app.get('/orders', async (req, res) => {
+            const result = await ordersCollection.find().toArray()
+            res.send(result)
+        })
+        //get specific (email) order
+        app.get('/orders/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email: email }
+            const result = await ordersCollection.find(query).toArray()
+            return res.send(result)
+        })
+
     } finally {
         //   await client.close();
     }
