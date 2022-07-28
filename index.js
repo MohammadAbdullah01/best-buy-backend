@@ -28,10 +28,19 @@ async function run() {
         const productsCollection = client.db("bestBuy").collection("products");
 
         app.get('/products', async (req, res) => {
-            const query = {}
-            const cursor = productsCollection.find(query)
-            const products = await cursor.toArray()
-            res.send(products)
+            const products = await productsCollection.find().toArray()
+            console.log(products);
+            if (req.query.name) {
+                const search = req.query.name
+                const matched = products.filter(product => product.name.toLocaleLowerCase().includes(search))
+                res.send(matched)
+            }
+            else {
+                const query = {}
+                const cursor = productsCollection.find(query)
+                const products = await cursor.toArray()
+                res.send(products)
+            }
         })
     } finally {
         //   await client.close();
