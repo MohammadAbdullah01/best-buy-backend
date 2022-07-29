@@ -14,7 +14,7 @@ app.get('/', (req, res) => {
     res.send('Hello World!')
 })
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.5eij1.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
@@ -58,6 +58,13 @@ async function run() {
             const query = { email: email }
             const result = await ordersCollection.find(query).toArray()
             return res.send(result)
+        })
+        //delte one order with id
+        app.delete('/orders/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) }
+            const result = await ordersCollection.deleteOne(query);
+            res.send(result)
         })
 
     } finally {
